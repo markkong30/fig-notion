@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Name: custom color palette
+       Author: Ilias Ism
+       URL: https://gradient.page */
+
+    /* CSS: .bg-gradient { background: var(--gradient) } */
+    --gradient: #614385;
+
+    --background: 284 21.45% 3.12%;
+    --foreground: 284 3.3000000000000003% 96.95%;
+
+    --muted: 284 16.5% 11.700000000000001%;
+    --muted-foreground: 284 3.3000000000000003% 53.9%;
+
+    --popover: 284 58.4% 5.07%;
+    --popover-foreground: 284 3.3000000000000003% 96.95%;
+
+    --card: 284 58.4% 5.07%;
+    --card-foreground: 284 3.3000000000000003% 96.95%;
+
+    --border: 284 16.5% 11.700000000000001%;
+    --input: 284 16.5% 11.700000000000001%;
+
+    --primary: 284 33% 39%;
+    --primary-foreground: 284 3.3000000000000003% 96.95%;
+
+    --secondary: 284 16.5% 11.700000000000001%;
+    --secondary-foreground: 284 3.3000000000000003% 96.95%;
+
+    --accent: 284 16.5% 11.700000000000001%;
+    --accent-foreground: 284 3.3000000000000003% 96.95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 284 3.3000000000000003% 96.95%;
+
+    --ring: 284 33% 39%;
+  }
+}
+
+::selection {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  background-color: hsl(var(--background));
+  border-radius: 8px;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar-thumb {
+  color: hsl(var(--primary));
+  background-color: hsl(var(--primary));
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: hsl(var(--background));
+}
+
+.dotPattern {
+  background-image: radial-gradient(rgb(35, 40, 68) 1px, transparent 1px);
+  background-size: 25px 25px;
+}
+
+.use-automation-zoom-in {
+  animation: automation-zoom-in 0.5s;
+}
+
+.card-mask {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 75, 224, 0.15),
+    transparent
+  );
+}
+
+.gradient {
+  background: conic-gradient(
+    from 230.29deg at 51.63% 52.16%,
+    rgb(36, 0, 255) 0deg,
+    rgb(0, 135, 255) 67.5deg,
+    rgb(108, 39, 157) 198.75deg,
+    rgb(24, 38, 163) 251.25deg,
+    rgb(54, 103, 196) 301.88deg,
+    rgb(105, 30, 255) 360deg
+  );
+}
+
+.lamp {
+  opacity: 1;
+  transform: translateY(-200px) rotate(180deg) scale(2) translateZ(0px);
+}
+
+@keyframes automation-zoom-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

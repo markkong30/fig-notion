@@ -1,0 +1,1 @@
+npm run test:typescript && npx lint-staged

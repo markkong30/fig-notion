@@ -1,0 +1,28 @@
+name: CI - lint & type check
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Typescript type check
+        run: npm run test:typescript
+
+      - name: ESLint
+        run: npm run test:lint
+
+      - name: Prettier
+        run: npm run test:prettier

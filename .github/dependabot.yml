@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+      time: '09:00' # UTC
+    target-branch: 'develop'
+    open-pull-requests-limit: 5
+    groups:
+      patch:
+        patterns:
+          - '*'
+        update-types:
+          - 'patch'
+      minor:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+    ignore:
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'expo'
+        update-types: ['version-update:semver-major']

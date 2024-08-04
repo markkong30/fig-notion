@@ -1,4 +1,4 @@
-import { Footer, Navbar } from '@/components';
+import React from 'react';
 import { SITE_CONFIG } from '@/config';
 import { cn } from '@/lib/utils';
 import '@/styles/globals.css';

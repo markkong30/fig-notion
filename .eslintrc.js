@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['next', 'prettier'],
+  extends: ['next', 'prettier', 'eslint:recommended'],
   plugins: ['prettier'],
   rules: {
     'prettier/prettier': [
@@ -9,5 +9,6 @@ module.exports = {
       },
     ],
     'react-hooks/exhaustive-deps': 'off',
+    'no-unused-vars': 'warn',
   },
 };

@@ -21,6 +21,7 @@ import { ArrowRight, ChevronRight, UserIcon, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+const x;
 const HomePage = () => {
   const firstRow = reviews.slice(0, reviews.length / 2);
   const secondRow = reviews.slice(reviews.length / 2);

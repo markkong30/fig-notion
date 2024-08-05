@@ -10,7 +10,6 @@ on:
 
 jobs:
   build:
-    name: CI - lint & type check
     runs-on: ubuntu-latest
 
     steps:

@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { HeroHighlight, Highlight } from '@/components/ui/hero-highlight';
+import { Highlight } from '@/components/ui/hero-highlight';
 import { Input } from '@/components/ui/input';
 import { LampContainer } from '@/components/ui/lamp';
 import Marquee from '@/components/ui/marquee';

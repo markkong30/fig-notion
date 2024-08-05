@@ -2,7 +2,6 @@ import { Container, Icons } from '@/components';
 import { buttonVariants } from '@/components/ui/button';
 import { UserButton } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';
-import Logo from '@/assets/logo.png';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,7 +14,12 @@ const Navbar = async () => {
         <div className='flex items-center justify-between h-full mx-auto md:max-w-screen-xl'>
           <div className='flex items-start'>
             <Link href='/' className='flex items-center gap-2'>
-              <Image src={Logo} alt='FigNotion' width={50} height={50} />
+              <Image
+                src='/assets/logo.png'
+                alt='FigNotion'
+                width={50}
+                height={50}
+              />
               <Icons.logo className='w-auto h-6' />
             </Link>
           </div>

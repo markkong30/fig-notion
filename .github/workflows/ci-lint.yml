@@ -1,4 +1,4 @@
-name: CI - lint & type check
+name: CI
 
 on:
   pull_request:
@@ -10,6 +10,7 @@ on:
 
 jobs:
   build:
+    name: lint & type check
     runs-on: ubuntu-latest
 
     steps:

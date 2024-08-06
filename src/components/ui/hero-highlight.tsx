@@ -71,9 +71,11 @@ export const Highlight = ({
     <motion.span
       initial={{
         backgroundSize: '0% 100%',
+        filter: 'brightness(0.2) blur(2px)',
       }}
       animate={{
         backgroundSize: '100% 100%',
+        filter: 'brightness(1) blur(0px)',
       }}
       transition={{
         duration: 2,

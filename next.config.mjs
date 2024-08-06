@@ -2,6 +2,12 @@
 const nextConfig = {
   images: {
     domains: ['utfs.io', 'img.clerk.com', 'subdomain'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   reactStrictMode: false,
 };

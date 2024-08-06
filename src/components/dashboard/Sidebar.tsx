@@ -1,58 +1,20 @@
 'use client';
+
 import React, { FC, useState } from 'react';
 import {
   Sidebar as SidebarWrapper,
   SidebarBody,
   SidebarLink,
 } from '../ui/sidebar';
-import {
-  IconArrowLeft,
-  IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
-  IconCreditCard,
-} from '@tabler/icons-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { AppWindow, FileText, Images, Users } from 'lucide-react';
 import { useClerk, UserButton } from '@clerk/nextjs';
 import { sidebarItems } from '@/constants/sidebar';
 
-const iconProps = {
-  className: 'text-foreground h-5 w-5 flex-shrink-0',
-};
+const Sidebar: FC = () => {
+  const { user, openUserProfile } = useClerk();
 
-type Props = {
-  userName: string;
-};
-
-const Sidebar: FC<Props> = ({ userName }) => {
-  const { openUserProfile } = useClerk();
-
-  const links = [
-    {
-      label: 'Dashboard',
-      href: '#',
-      icon: <IconBrandTabler {...iconProps} />,
-    },
-    {
-      label: 'Web Builder',
-      href: '#',
-      icon: <AppWindow {...iconProps} />,
-    },
-    {
-      label: 'Documents',
-      href: '#',
-      icon: <FileText {...iconProps} />,
-    },
-    {
-      label: 'Assets Gallery',
-      href: '#',
-      icon: <Images {...iconProps} />,
-    },
-  ];
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -68,7 +30,6 @@ const Sidebar: FC<Props> = ({ userName }) => {
             <div className='mt-8 flex flex-col gap-16'>
               {sidebarItems.map(item => (
                 <div key={item.id}>
-                  {/* {open && ( */}
                   <div
                     className={cn(
                       'text-foreground font-semibold text-xs mb-2 whitespace-pre',
@@ -77,7 +38,6 @@ const Sidebar: FC<Props> = ({ userName }) => {
                   >
                     {item.section}
                   </div>
-                  {/* )} */}
 
                   {item.links.map((link, idx) => (
                     <div key={idx} className='flex flex-col gap-2'>
@@ -90,7 +50,7 @@ const Sidebar: FC<Props> = ({ userName }) => {
           </div>
           <SidebarLink
             link={{
-              label: userName,
+              label: user?.fullName ?? '',
               href: '#',
               icon: <UserButton />,
             }}

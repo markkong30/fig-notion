@@ -1,5 +1,5 @@
 'use client';
-import { FC, ReactNode, useState } from 'react';
+import { createRef, FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,8 @@ import { DialogClose } from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { workspaceCovers } from '@/constants/covers';
 import { cn } from '@/lib/utils';
+import { onEnterOrSpace } from '@/lib/helpers';
+import { useKeyBoardNav } from '@/hooks/useKeyboardNav';
 
 type Props = {
   onSelectCover: (cover: string) => void;
@@ -22,6 +24,16 @@ type Props = {
 
 const CoverPicker: FC<Props> = ({ children, onSelectCover }) => {
   const [selectedCover, setSelectedCover] = useState('');
+  const refs = useMemo(
+    () => workspaceCovers.map(() => createRef<HTMLLIElement>()),
+    [],
+  );
+
+  const { isKeyboardActivated, focusIndex, handleKeyboard } = useKeyBoardNav();
+
+  useEffect(() => {
+    refs[focusIndex]?.current?.focus();
+  }, [focusIndex]);
 
   return (
     <Dialog>
@@ -34,9 +46,17 @@ const CoverPicker: FC<Props> = ({ children, onSelectCover }) => {
               {workspaceCovers.map((cover, index) => (
                 <li
                   key={index}
+                  ref={refs[index]}
+                  tabIndex={selectedCover === cover?.imageUrl ? 0 : -1}
                   onClick={() => setSelectedCover(cover.imageUrl)}
+                  onKeyDown={e => {
+                    handleKeyboard(e, refs, index);
+
+                    onEnterOrSpace(e, () => setSelectedCover(cover.imageUrl));
+                  }}
                   className={cn(
                     'p-1 rounded-md border-2',
+                    isKeyboardActivated && 'focus-outline',
                     selectedCover === cover?.imageUrl
                       ? 'border-primary'
                       : 'border-transparent',
@@ -48,6 +68,7 @@ const CoverPicker: FC<Props> = ({ children, onSelectCover }) => {
                     alt=''
                     width={200}
                     height={140}
+                    draggable={false}
                     className='h-[70px] w-full rounded-md object-cover'
                   />
                 </li>

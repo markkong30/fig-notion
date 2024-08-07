@@ -38,7 +38,6 @@ const EmojiPicker: FC<Props> = ({ children, onSelectEmoji }) => {
           <EmojiPickerComp
             emojiStyle={EmojiStyle.NATIVE}
             theme={Theme.DARK}
-            autoFocusSearch
             onEmojiClick={e => {
               onSelectEmoji(e.emoji);
               setOpenEmojiPicker(false);

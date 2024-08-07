@@ -42,6 +42,7 @@ function CreateWorkspace() {
                 alt='cover'
                 width={400}
                 height={400}
+                draggable={false}
                 className='w-full h-[180px] object-cover rounded-t-xl'
               />
             </div>

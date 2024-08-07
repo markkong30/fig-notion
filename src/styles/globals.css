@@ -93,6 +93,14 @@
   );
 }
 
+.focus-outline {
+  &:focus {
+    outline-width: 2px;
+    outline-offset: 3px;
+    outline-style: solid;
+  }
+}
+
 .lamp {
   opacity: 1;
   transform: translateY(-200px) rotate(180deg) scale(2) translateZ(0px);

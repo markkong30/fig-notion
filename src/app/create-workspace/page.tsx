@@ -2,7 +2,7 @@
 
 import CoverPicker from '@/components/create-workspace/CoverPicker';
 import EmojiPicker from '@/components/create-workspace/EmojiPicker';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUser } from '@clerk/nextjs';
 import { Loader2Icon, SmilePlus } from 'lucide-react';
@@ -57,7 +57,9 @@ function CreateWorkspace() {
           </h2>
           <div className='mt-8 flex gap-2 items-center'>
             <EmojiPicker onSelectEmoji={v => setEmoji(v)}>
-              <Button variant='outline'>{emoji ?? <SmilePlus />}</Button>
+              <div className={buttonVariants({ variant: 'outline' })}>
+                {emoji ?? <SmilePlus />}
+              </div>
             </EmojiPicker>
             <Input
               placeholder='Workspace Name'

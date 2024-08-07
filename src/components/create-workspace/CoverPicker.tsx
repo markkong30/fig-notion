@@ -30,9 +30,9 @@ const CoverPicker: FC<Props> = ({ children, onSelectCover }) => {
         <DialogHeader>
           <DialogTitle>Update Cover</DialogTitle>
           <DialogDescription>
-            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-3'>
+            <ul className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-3'>
               {workspaceCovers.map((cover, index) => (
-                <div
+                <li
                   key={index}
                   onClick={() => setSelectedCover(cover.imageUrl)}
                   className={cn(
@@ -44,14 +44,15 @@ const CoverPicker: FC<Props> = ({ children, onSelectCover }) => {
                 >
                   <Image
                     src={cover?.imageUrl}
+                    priority
                     alt=''
                     width={200}
                     height={140}
                     className='h-[70px] w-full rounded-md object-cover'
                   />
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className=''>

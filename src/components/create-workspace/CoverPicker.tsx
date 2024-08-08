@@ -45,7 +45,7 @@ const CoverPicker: FC<Props> = ({ children, onSelectCover }) => {
             <ul className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-3'>
               {workspaceCovers.map((cover, index) => (
                 <li
-                  key={index}
+                  key={`cover-${index}}`}
                   ref={refs[index]}
                   tabIndex={selectedCover === cover?.imageUrl ? 0 : -1}
                   onClick={() => setSelectedCover(cover.imageUrl)}

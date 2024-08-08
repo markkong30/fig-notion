@@ -49,6 +49,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       asChild = false,
+      disabled,
       isLoading,
       children,
       ...props
@@ -64,6 +65,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         ref={ref}
         {...props}
+        disabled={isLoading || disabled}
       >
         {isLoading ? (
           <div className='flex items-center justify-center gap-2'>

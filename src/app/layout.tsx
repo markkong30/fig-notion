@@ -6,6 +6,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components';
+import QueryClientWrapper from '@/components/providers/QueryClientWrapper';
 
 const font = Inter({ subsets: ['latin'] });
 
@@ -25,9 +26,11 @@ export default function RootLayout({
         )}
       >
         <ThemeProvider>
-          <ClerkProvider appearance={{ baseTheme: dark }}>
-            {children}
-          </ClerkProvider>
+          <QueryClientWrapper>
+            <ClerkProvider appearance={{ baseTheme: dark }}>
+              {children}
+            </ClerkProvider>
+          </QueryClientWrapper>
         </ThemeProvider>
       </body>
     </html>

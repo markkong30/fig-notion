@@ -32,7 +32,7 @@ const ImageUploader: FC<Props> = ({ onUpload, onRemove }) => {
         imgOnly={true}
         sourceList='local, url, camera, dropbox, gdrive'
         classNameUploader='upload-care-config uc-dark'
-        onFileUploadSuccess={file => onUpload(file.cdnUrl)}
+        onFileUrlChanged={file => onUpload(file.cdnUrl)}
         onFileRemoved={onRemove}
       />
     </div>

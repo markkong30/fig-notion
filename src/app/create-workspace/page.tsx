@@ -4,11 +4,11 @@ import React, { useEffect, useState } from 'react';
 import CoverPicker from '@/components/create-workspace/CoverPicker';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { workspaceCovers } from '@/constants/covers';
+import { defaultWorkspaceLogoUrl, workspaceCovers } from '@/constants/covers';
 import { initUser } from '@/lib/queries';
 import { useUser } from '@clerk/nextjs';
 import { Plan } from '@prisma/client';
-import { ImagePlus, Loader2Icon } from 'lucide-react';
+import { ImagePlus } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ImageUploader from '@/components/global/ImageUploader';
@@ -19,14 +19,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useCreateWorkspace } from '@/helpers/workspace/query-helpers';
 
 const CreateWorkspace = () => {
   const [coverImage, setCoverImage] = useState(workspaceCovers[0].imageUrl);
   const [workspaceName, setWorkspaceName] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const { user } = useUser();
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const { createWorkspace, isCreatingWorkspace } = useCreateWorkspace({
+    onSuccess: () => router.replace('/dashboard'),
+  });
 
   useEffect(() => {
     const createUser = async () => {
@@ -38,10 +42,16 @@ const CreateWorkspace = () => {
     }
   }, [user?.id]);
 
-  const onCreateWorkspace = async () => {
-    // setLoading(true);
-    // setLoading(false);
-    router.replace('/dashboard');
+  const onCreateWorkspace = () => {
+    if (!workspaceName) return;
+
+    const workspaceData = {
+      name: workspaceName,
+      coverUrl: coverImage,
+      logoUrl: logoUrl ?? defaultWorkspaceLogoUrl,
+    };
+
+    createWorkspace(workspaceData);
   };
   return (
     <div className='p-10 md:px-36 lg:px-64 xl:px-96 py-28'>
@@ -118,8 +128,8 @@ const CreateWorkspace = () => {
           </div>
           <div className='mt-7 flex justify-end gap-6'>
             <Button
-              isLoading
-              disabled={!workspaceName?.length || loading}
+              isLoading={isCreatingWorkspace}
+              disabled={!workspaceName?.length}
               onClick={onCreateWorkspace}
             >
               Create

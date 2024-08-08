@@ -56,3 +56,6 @@ export const workspaceCovers = [
       'https://img.freepik.com/free-photo/seamless-abstract-pattern-design_23-2151179146.jpg?ga=GA1.1.1679917421.1705195646&semt=ais_user_ai_gen',
   },
 ];
+
+export const defaultWorkspaceLogoUrl =
+  'https://ucarecdn.com/db53f9ad-9c2e-4c9b-b850-6f2df87e869a/';

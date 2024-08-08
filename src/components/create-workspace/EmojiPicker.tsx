@@ -32,7 +32,7 @@ const EmojiPicker: FC<Props> = ({ children, onSelectEmoji }) => {
 
   return (
     <div ref={emojiPickerRef}>
-      <button onClick={() => setOpenEmojiPicker(true)}>{children}</button>
+      <button className='relative'>{children}</button>
       {openEmojiPicker && (
         <div className='absolute z-10'>
           <EmojiPickerComp

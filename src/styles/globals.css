@@ -117,3 +117,12 @@
     transform: scale(1);
   }
 }
+
+.upload-care-config {
+  --uc-primary-oklch-dark: 69% 0.1768 300;
+  --uc-primary-oklch-light: 59% 0.22 300;
+}
+
+uc-simple-btn {
+  opacity: 0;
+}

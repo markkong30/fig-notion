@@ -29,7 +29,11 @@ const CreateWorkspace = () => {
   const router = useRouter();
 
   const { createWorkspace, isCreatingWorkspace } = useCreateWorkspace({
-    onSuccess: () => router.replace('/dashboard'),
+    onSuccess: workspace => {
+      if (workspace) {
+        router.push(`/dashboard/${workspace.id}`);
+      }
+    },
   });
 
   useEffect(() => {

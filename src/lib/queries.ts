@@ -4,6 +4,7 @@ import { clerkClient, currentUser } from '@clerk/nextjs/server';
 import { db } from './db';
 import { Plan, User, UserRole, Workspace } from '@prisma/client';
 import { createWorkspaceValidation } from './validation';
+import { WorkspaceWithUser } from '@/helpers/types';
 
 export const initUser = async (newUser: Partial<User>) => {
   const user = await currentUser();
@@ -55,11 +56,11 @@ export const createWorkSpace = async (workspace: Partial<Workspace>) => {
   return workspaceData;
 };
 
-export const getUserWorkspaces = async () => {
+export const getWorkspaces = async () => {
   const user = await currentUser();
-  if (!user) return;
+  if (!user) return [];
 
-  const userWorkspaces = await db.workspace.findMany({
+  const userWorkspaces = (await db.workspace.findMany({
     where: {
       users: {
         some: {
@@ -70,7 +71,27 @@ export const getUserWorkspaces = async () => {
     include: {
       users: true,
     },
-  });
+  })) as WorkspaceWithUser[];
 
-  return userWorkspaces;
+  const mappedWorkspaces =
+    userWorkspaces.sort((a, b) => {
+      const currentUserA = a.users.find(u => u.userId === user.id);
+      const currentUserB = b.users.find(u => u.userId === user.id);
+
+      if (
+        currentUserA?.role === UserRole.ADMIN &&
+        currentUserB?.role !== UserRole.ADMIN
+      ) {
+        return -1;
+      }
+      if (
+        currentUserA?.role !== UserRole.ADMIN &&
+        currentUserB?.role === UserRole.ADMIN
+      ) {
+        return 1;
+      }
+      return 0;
+    }) ?? [];
+
+  return mappedWorkspaces;
 };

@@ -18,16 +18,18 @@ export const initUser = async (newUser: Partial<User>) => {
   const user = await currentUser();
   if (!user) return;
 
+  const email = user.emailAddresses[0].emailAddress;
+
   // upsert user data
   await db.user.upsert({
     where: {
-      email: user.emailAddresses[0].emailAddress,
+      email: email,
     },
     update: newUser,
     create: {
       id: user.id,
       avatarUrl: user.imageUrl,
-      email: user.emailAddresses[0].emailAddress,
+      email: email,
       name: user.fullName ?? `${user.firstName} ${user.lastName}`,
       plan: newUser.plan ?? Plan.FREE,
     },
@@ -39,11 +41,12 @@ export const initUser = async (newUser: Partial<User>) => {
     },
   });
 
-  const pendingInvitation = await checkUserInvitation();
+  const pendingInvitation = await checkUserInvitation(email);
 
   // if pending invitation exists, update DB and redirect to workspace
   if (pendingInvitation) {
     await updateWorkspaceUsers({
+      userId: user.id,
       workspaceId: pendingInvitation.workspaceId,
       role: pendingInvitation.role,
     });
@@ -53,10 +56,10 @@ export const initUser = async (newUser: Partial<User>) => {
   }
 
   // if no pending invitation, check if existing workspace exists
-  const workspaces = await getWorkspaces();
+  const workspaces = user.publicMetadata?.workspaceIds as string[];
 
-  if (workspaces.length) {
-    return redirect(`/dashboard/${workspaces[0].id}`);
+  if (workspaces?.length) {
+    return redirect(`/dashboard/${workspaces[0]}`);
   } else {
     return redirect('/create-workspace');
   }
@@ -203,13 +206,10 @@ export const sendUserInvitation = async (
   return invitation;
 };
 
-export const checkUserInvitation = async () => {
-  const user = await currentUser();
-  if (!user) return;
-
+export const checkUserInvitation = async (email: string) => {
   const pendingInvitation = await db.invitation.findFirst({
     where: {
-      email: user.emailAddresses[0].emailAddress,
+      email,
       status: InvitationStatus.PENDING,
     },
   });
@@ -218,12 +218,10 @@ export const checkUserInvitation = async () => {
 };
 
 export const updateWorkspaceUsers = async ({
+  userId,
   workspaceId,
   role,
 }: UpdateWorkspaceUsersParams) => {
-  const user = await currentUser();
-  if (!user) return;
-
   const workspace = await db.workspace.update({
     where: {
       id: workspaceId,
@@ -232,7 +230,7 @@ export const updateWorkspaceUsers = async ({
       users: {
         create: {
           user: {
-            connect: { id: user.id },
+            connect: { id: userId },
           },
           role,
         },

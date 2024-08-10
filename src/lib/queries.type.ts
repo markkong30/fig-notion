@@ -6,6 +6,7 @@ export type InitUserParams = Partial<User> & {
 };
 
 export type UpdateWorkspaceUsersParams = {
+  userId: string;
   workspaceId: string;
   role: UserRole;
 };

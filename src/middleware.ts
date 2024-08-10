@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)']);
-const isPrivateRoute = createRouteMatcher(['/dashboard(.*)']);
+const isPrivateRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/redirect',
+  '/create-workspace',
+]);
 
 export default clerkMiddleware((auth, req) => {
   const { userId } = auth();

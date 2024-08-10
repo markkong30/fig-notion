@@ -2,27 +2,22 @@
 
 import { useEffect } from 'react';
 import Spinner from '@/components/global/Spinner';
-import { useGetWorkspaces } from '@/helpers/redirect/query-helpers';
-import { useRouter } from 'next/navigation';
+import { initUser } from '@/lib/queries';
+import { Plan } from '@prisma/client';
+import { useUser } from '@clerk/nextjs';
 
 const Redirect = () => {
-  const router = useRouter();
-
-  const { getWorkspaces } = useGetWorkspaces({
-    onSuccess: workspaces => {
-      if (!workspaces.length) {
-        return router.replace('/create-workspace');
-      }
-
-      const workspaceId = workspaces[0].id;
-
-      return router.replace(`/dashboard/${workspaceId}`);
-    },
-  });
+  const { user } = useUser();
 
   useEffect(() => {
-    getWorkspaces();
-  }, []);
+    const initLoginRedirect = async () => {
+      await initUser({ plan: Plan.FREE });
+    };
+
+    if (user) {
+      initLoginRedirect();
+    }
+  }, [user?.id]);
 
   return <Spinner size={50} />;
 };

@@ -1,7 +1,7 @@
 import { IconBrandTabler, IconCreditCard } from '@tabler/icons-react';
 import { AppWindow, FileText, Images, Users } from 'lucide-react';
 
-const iconProps = {
+export const iconProps = {
   className: 'text-foreground h-5 w-5 flex-shrink-0',
 };
 

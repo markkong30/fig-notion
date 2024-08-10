@@ -1,20 +1,16 @@
 import { getWorkspaces } from '@/lib/queries';
-import { useMutation } from '@tanstack/react-query';
-import { WorkspaceWithUser } from '../types';
+import { useQuery } from '@tanstack/react-query';
 
-type GetWorkspaceProps = {
-  onSuccess: (data: WorkspaceWithUser[]) => void;
-};
-
-export const useGetWorkspaces = ({ onSuccess }: GetWorkspaceProps) => {
-  const { mutate, data, isPending } = useMutation({
-    mutationFn: getWorkspaces,
-    onSuccess,
+export const useGetWorkspaces = () => {
+  const { data, isLoading, error, isFetched } = useQuery({
+    queryKey: ['workspaces'],
+    queryFn: getWorkspaces,
   });
 
   return {
     workspaces: data,
-    getWorkspaces: mutate,
-    isGettingWorkspaces: isPending,
+    isGettingWorkspaces: isLoading,
+    isFetchedWorkspaces: isFetched,
+    hasGetWorkspacesError: error,
   };
 };

@@ -2,15 +2,24 @@
 
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
 import { db } from './db';
-import { Plan, User, UserRole, Workspace } from '@prisma/client';
+import {
+  InvitationStatus,
+  Plan,
+  User,
+  UserRole,
+  Workspace,
+} from '@prisma/client';
 import { createWorkspaceValidation } from './validation';
 import { WorkspaceWithUser } from '@/helpers/types';
+import { UpdateWorkspaceUsersParams } from './queries.type';
+import { redirect } from 'next/navigation';
 
 export const initUser = async (newUser: Partial<User>) => {
   const user = await currentUser();
   if (!user) return;
 
-  const userData = await db.user.upsert({
+  // upsert user data
+  await db.user.upsert({
     where: {
       email: user.emailAddresses[0].emailAddress,
     },
@@ -19,18 +28,38 @@ export const initUser = async (newUser: Partial<User>) => {
       id: user.id,
       avatarUrl: user.imageUrl,
       email: user.emailAddresses[0].emailAddress,
-      name: `${user.firstName} ${user.lastName}`,
+      name: user.fullName ?? `${user.firstName} ${user.lastName}`,
       plan: newUser.plan ?? Plan.FREE,
     },
   });
 
   await clerkClient.users.updateUserMetadata(user.id, {
-    privateMetadata: {
+    publicMetadata: {
       plan: newUser.plan ?? Plan.FREE,
     },
   });
 
-  return userData;
+  const pendingInvitation = await checkUserInvitation();
+
+  // if pending invitation exists, update DB and redirect to workspace
+  if (pendingInvitation) {
+    await updateWorkspaceUsers({
+      workspaceId: pendingInvitation.workspaceId,
+      role: pendingInvitation.role,
+    });
+    await acceptInvitation(pendingInvitation.id);
+
+    return redirect(`/dashboard/${pendingInvitation.workspaceId}`);
+  }
+
+  // if no pending invitation, check if existing workspace exists
+  const workspaces = await getWorkspaces();
+
+  if (workspaces.length) {
+    return redirect(`/dashboard/${workspaces[0].id}`);
+  } else {
+    return redirect('/create-workspace');
+  }
 };
 
 export const createWorkSpace = async (workspace: Partial<Workspace>) => {
@@ -50,6 +79,15 @@ export const createWorkSpace = async (workspace: Partial<Workspace>) => {
           role: UserRole.ADMIN, // the creator must be an admin
         },
       },
+    },
+  });
+
+  const currentWorkspaceIds =
+    (user.publicMetadata?.workspaceIds as string[]) ?? [];
+
+  await clerkClient.users.updateUserMetadata(user.id, {
+    publicMetadata: {
+      workspaceIds: [...currentWorkspaceIds, workspaceData.id],
     },
   });
 
@@ -94,4 +132,126 @@ export const getWorkspaces = async () => {
     }) ?? [];
 
   return mappedWorkspaces;
+};
+
+export const createUserWithWorkspace = async (
+  workspaceId: string,
+  role: UserRole,
+) => {
+  const user = await currentUser();
+  if (!user) return;
+
+  const createdUser = await db.user.create({
+    data: {
+      id: user.id,
+      avatarUrl: user.imageUrl,
+      email: user.emailAddresses[0].emailAddress,
+      name: user.fullName ?? `${user.firstName} ${user.lastName}`,
+      plan: Plan.FREE,
+      workspaces: {
+        create: {
+          workspace: {
+            connect: { id: workspaceId },
+          },
+          role,
+        },
+      },
+    },
+  });
+
+  const currentWorkspaceIds =
+    (user.publicMetadata?.workspaceIds as string[]) ?? [];
+
+  await clerkClient.users.updateUserMetadata(user.id, {
+    publicMetadata: {
+      workspaceIds: [...currentWorkspaceIds, workspaceId],
+    },
+  });
+
+  return createdUser;
+};
+
+export const sendUserInvitation = async (
+  workspaceId: string,
+  role: UserRole,
+) => {
+  const user = await currentUser();
+  if (!user) return;
+
+  const currentWorkspaceIds =
+    (user.publicMetadata?.workspaceIds as string[]) ?? [];
+
+  await clerkClient.invitations.createInvitation({
+    emailAddress: user.emailAddresses[0].emailAddress,
+    redirectUrl: process.env.NEXT_PUBLIC_URL_SIGN_UP,
+    ignoreExisting: true,
+    publicMetadata: {
+      workspaceIds: [...currentWorkspaceIds, workspaceId],
+    },
+  });
+
+  const invitation = await db.invitation.create({
+    data: {
+      userId: user.id,
+      workspaceId,
+      role,
+      status: InvitationStatus.PENDING,
+      email: user.emailAddresses[0].emailAddress,
+    },
+  });
+
+  return invitation;
+};
+
+export const checkUserInvitation = async () => {
+  const user = await currentUser();
+  if (!user) return;
+
+  const pendingInvitation = await db.invitation.findFirst({
+    where: {
+      email: user.emailAddresses[0].emailAddress,
+      status: InvitationStatus.PENDING,
+    },
+  });
+
+  return pendingInvitation;
+};
+
+export const updateWorkspaceUsers = async ({
+  workspaceId,
+  role,
+}: UpdateWorkspaceUsersParams) => {
+  const user = await currentUser();
+  if (!user) return;
+
+  const workspace = await db.workspace.update({
+    where: {
+      id: workspaceId,
+    },
+    data: {
+      users: {
+        create: {
+          user: {
+            connect: { id: user.id },
+          },
+          role,
+        },
+      },
+    },
+  });
+
+  return workspace;
+};
+
+export const acceptInvitation = async (invitationId: string) => {
+  const invitation = await db.invitation.update({
+    where: {
+      id: invitationId,
+    },
+    data: {
+      status: InvitationStatus.ACCEPTED,
+    },
+  });
+
+  return invitation;
 };

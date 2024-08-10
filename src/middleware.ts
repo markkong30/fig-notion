@@ -5,10 +5,12 @@ const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)']);
 const isPrivateRoute = createRouteMatcher(['/dashboard(.*)']);
 
 export default clerkMiddleware((auth, req) => {
-  const { userId, protect } = auth();
+  const { userId } = auth();
 
   if (isPrivateRoute(req)) {
-    protect();
+    if (!userId) {
+      return NextResponse.rewrite(new URL('/', req.url));
+    }
   }
 
   // if there is user and home route is accessed, redirect to dashboard or any other protected route

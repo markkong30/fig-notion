@@ -10,16 +10,23 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useClerk, UserButton } from '@clerk/nextjs';
-import { sidebarItems } from '@/constants/sidebar';
+import { iconProps, sidebarItems } from '@/constants/sidebar';
+import { LogOutIcon } from 'lucide-react';
 
 type Props = {
   children: ReactNode;
 };
 
 const Sidebar: FC<Props> = ({ children }) => {
-  const { user, openUserProfile } = useClerk();
-
+  const { user, openUserProfile, signOut } = useClerk();
   const [open, setOpen] = useState(false);
+
+  const onSignOut = async () => {
+    await signOut({
+      redirectUrl: '/',
+    });
+  };
+
   return (
     <div
       className={cn(
@@ -52,15 +59,27 @@ const Sidebar: FC<Props> = ({ children }) => {
               ))}
             </div>
           </div>
-          <SidebarLink
-            link={{
-              label: user?.fullName ?? '',
-              href: '#',
-              icon: <UserButton />,
-            }}
-            isButton
-            onClick={openUserProfile}
-          />
+          <div className='flex flex-col'>
+            <SidebarLink
+              className='-ml-1.5'
+              link={{
+                label: user?.fullName ?? '',
+                href: '#',
+                icon: <UserButton />,
+              }}
+              isButton
+              onClick={openUserProfile}
+            />
+            <SidebarLink
+              link={{
+                label: 'Logout',
+                href: '#',
+                icon: <LogOutIcon {...iconProps} />,
+              }}
+              isButton
+              onClick={onSignOut}
+            />
+          </div>
         </SidebarBody>
       </SidebarWrapper>
       {children}

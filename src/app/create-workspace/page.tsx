@@ -29,9 +29,9 @@ const CreateWorkspace = () => {
   const router = useRouter();
 
   const { createWorkspace, isCreatingWorkspace } = useCreateWorkspace({
-    onSuccess: workspace => {
+    onSuccess: async workspace => {
       if (workspace) {
-        router.push(`/dashboard/${workspace.id}`);
+        router.push('/dashboard');
       }
     },
   });
@@ -57,6 +57,7 @@ const CreateWorkspace = () => {
 
     createWorkspace(workspaceData);
   };
+
   return (
     <div className='p-10 md:px-36 lg:px-64 xl:px-96 py-28'>
       <div className='shadow-2xl rounded-xl'>

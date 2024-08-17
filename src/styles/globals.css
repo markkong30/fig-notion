@@ -64,6 +64,11 @@
   background-color: hsl(var(--background));
 }
 
+.background-gradient {
+  background: linear-gradient(135deg, #2e003e, #1a001f);
+  color: #ffffff;
+}
+
 .dotPattern {
   background-image: radial-gradient(rgb(35, 40, 68) 1px, transparent 1px);
   background-size: 25px 25px;

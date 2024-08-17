@@ -51,15 +51,24 @@ export const initUser = async (newUser: Partial<User>) => {
       role: pendingInvitation.role,
     });
     await acceptInvitation(pendingInvitation.id);
+    await updateCurrentWorkspaceMetaData(
+      user.id,
+      pendingInvitation.workspaceId,
+    );
 
-    return redirect(`/dashboard/${pendingInvitation.workspaceId}`);
+    return redirect('/dashboard');
   }
 
   // if no pending invitation, check if existing workspace exists
   const workspaces = user.publicMetadata?.workspaceIds as string[];
+  const currentWorkspaceId = user.publicMetadata?.currentWorkspaceId as string;
 
   if (workspaces?.length) {
-    return redirect(`/dashboard/${workspaces[0]}`);
+    if (!currentWorkspaceId) {
+      await updateCurrentWorkspaceMetaData(user.id, workspaces[0]);
+    }
+
+    return redirect('/dashboard');
   } else {
     return redirect('/create-workspace');
   }
@@ -91,10 +100,29 @@ export const createWorkSpace = async (workspace: Partial<Workspace>) => {
   await clerkClient.users.updateUserMetadata(user.id, {
     publicMetadata: {
       workspaceIds: [...currentWorkspaceIds, workspaceData.id],
+      currentWorkspaceId: workspaceData.id,
     },
   });
 
   return workspaceData;
+};
+
+export const getWorkspace = async (workspaceId: string) => {
+  const user = await currentUser();
+  if (!user) return null;
+
+  const userWorkspace = await db.workspace.findUnique({
+    where: {
+      id: workspaceId,
+      users: {
+        some: {
+          userId: user.id,
+        },
+      },
+    },
+  });
+
+  return userWorkspace;
 };
 
 export const getWorkspaces = async () => {
@@ -105,7 +133,7 @@ export const getWorkspaces = async () => {
     where: {
       users: {
         some: {
-          userId: user?.id,
+          userId: user.id,
         },
       },
     },
@@ -252,4 +280,15 @@ export const acceptInvitation = async (invitationId: string) => {
   });
 
   return invitation;
+};
+
+export const updateCurrentWorkspaceMetaData = async (
+  userId: string,
+  workspaceId: string,
+) => {
+  await clerkClient.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      currentWorkspaceId: workspaceId,
+    },
+  });
 };

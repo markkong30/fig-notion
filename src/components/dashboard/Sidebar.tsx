@@ -6,20 +6,24 @@ import {
   SidebarBody,
   SidebarLink,
 } from '../ui/sidebar';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useClerk, UserButton } from '@clerk/nextjs';
-import { iconProps, sidebarItems } from '@/constants/sidebar';
+import { getSidebarItems, iconProps } from '@/constants/sidebar';
 import { LogOutIcon } from 'lucide-react';
+import { Workspace } from '@prisma/client';
+import Image from 'next/image';
 
 type Props = {
+  workspace: Workspace;
   children: ReactNode;
 };
 
-const Sidebar: FC<Props> = ({ children }) => {
+const Sidebar: FC<Props> = ({ workspace, children }) => {
   const { user, openUserProfile, signOut } = useClerk();
   const [open, setOpen] = useState(false);
+
+  const sidebarItems = getSidebarItems();
 
   const onSignOut = async () => {
     await signOut({
@@ -30,14 +34,30 @@ const Sidebar: FC<Props> = ({ children }) => {
   return (
     <div
       className={cn(
-        'rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden',
+        'rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-950 flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden',
         'w-full h-full',
       )}
     >
       <SidebarWrapper open={open} setOpen={setOpen}>
         <SidebarBody className='justify-between gap-10'>
           <div className='flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
-            {open ? <Logo /> : <LogoIcon />}
+            <div className='flex items-center gap-4'>
+              <Image
+                src={workspace.logoUrl + '-/preview/-/border_radius/50p/'}
+                width={28}
+                height={28}
+                alt='workspace logo'
+                priority
+              />
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className='font-medium text-black dark:text-white whitespace-pre'
+              >
+                {workspace.name}
+              </motion.span>
+            </div>
+
             <div className='mt-8 flex flex-col gap-16'>
               {sidebarItems.map(item => (
                 <div key={item.id}>
@@ -84,33 +104,6 @@ const Sidebar: FC<Props> = ({ children }) => {
       </SidebarWrapper>
       {children}
     </div>
-  );
-};
-export const Logo = () => {
-  return (
-    <Link
-      href='#'
-      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
-    >
-      <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className='font-medium text-black dark:text-white whitespace-pre'
-      >
-        Test Workspace
-      </motion.span>
-    </Link>
-  );
-};
-export const LogoIcon = () => {
-  return (
-    <Link
-      href='#'
-      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
-    >
-      <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
-    </Link>
   );
 };
 

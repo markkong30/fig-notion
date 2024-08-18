@@ -7,6 +7,7 @@ import { dark } from '@clerk/themes';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components';
 import QueryClientWrapper from '@/components/providers/QueryClientWrapper';
+import { Toaster } from '@/components/ui/sonner';
 
 const font = Inter({ subsets: ['latin'] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
         <ThemeProvider>
           <QueryClientWrapper>
             <ClerkProvider appearance={{ baseTheme: dark }}>
+              <Toaster />
               {children}
             </ClerkProvider>
           </QueryClientWrapper>

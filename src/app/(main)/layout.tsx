@@ -25,8 +25,12 @@ const MainLayout = ({ children }: Props) => {
   }
 
   return (
-    <div className='w-screen h-screen'>
-      <Sidebar workspace={workspace}>{children}</Sidebar>
+    <div className='w-screen h-screen relative'>
+      <Sidebar workspace={workspace}>
+        <div className='hidden md:block absolute bottom-0 right-[-20%] w-72 h-72 xl:w-48 xl:h-48 bg-indigo-600 rounded-full blur-[10rem]'></div>
+        <div className='hidden md:block absolute top-0 right-[-20%] w-72 h-72 xl:w-48 xl:h-48 bg-primary rounded-full blur-[10rem]'></div>
+        {children}
+      </Sidebar>
     </div>
   );
 };

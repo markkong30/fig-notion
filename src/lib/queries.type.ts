@@ -1,4 +1,5 @@
-import { User, UserRole } from '@prisma/client';
+import { Prisma, User, UserRole } from '@prisma/client';
+import { getWorkspace } from './queries';
 
 export type InitUserParams = Partial<User> & {
   workspaceId?: string;
@@ -10,3 +11,5 @@ export type UpdateWorkspaceUsersParams = {
   workspaceId: string;
   role: UserRole;
 };
+
+export type DetailedWorkspace = Prisma.PromiseReturnType<typeof getWorkspace>;

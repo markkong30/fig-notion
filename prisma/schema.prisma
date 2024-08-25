@@ -17,6 +17,7 @@ enum UserRole {
   READ
   READ_WRITE
   ADMIN
+  OWNER
 }
 
 enum InvitationStatus {
@@ -62,12 +63,13 @@ model WorkspaceUser {
 
 model Invitation {
   id          String           @id @default(uuid())
-  email       String           @unique
+  email       String
   userId      String
   workspaceId String
   workspace   Workspace        @relation(fields: [workspaceId], references: [id])
   status      InvitationStatus @default(PENDING)
   role        UserRole         @default(READ_WRITE)
 
+  @@unique([workspaceId, userId, email])
   @@index([userId])
 }

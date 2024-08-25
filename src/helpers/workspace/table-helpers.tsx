@@ -6,6 +6,7 @@ import { InvitationStatus, UserRole } from '@prisma/client';
 import Image from 'next/image';
 
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,14 +30,16 @@ import { Button } from '@/components/ui/button';
 import { Copy, MoreHorizontal, Trash } from 'lucide-react';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { DetailedWorkspace } from '@/lib/queries.type';
 import { toast } from 'sonner';
-import { deleteUser } from '@/lib/queries';
+import { removeUserFromWorkspace, revokeInvitation } from '@/lib/queries';
+import { refetchWorkspaceDetails } from './helpers';
 
 export type TableUserDetails = ReturnType<typeof formatWorkspaceUsers>[0];
 
-export const columns: ColumnDef<TableUserDetails>[] = [
+export const getColumns = (
+  user: TableUserDetails,
+): ColumnDef<TableUserDetails>[] => [
   {
     accessorKey: 'id',
     header: '',
@@ -49,17 +52,28 @@ export const columns: ColumnDef<TableUserDetails>[] = [
     header: 'Name',
     cell: ({ row }) => {
       const avatarUrl = row.getValue('avatarUrl') as string;
+      const email = row.getValue('email') as string;
+      const name = row.getValue('name') as string;
+
       return (
         <div className='flex items-center gap-4'>
           <div className='h-11 w-11 relative flex-none'>
-            <Image
-              src={avatarUrl}
-              fill
-              className='rounded-full object-cover'
-              alt='avatar image'
-            />
+            {avatarUrl ? (
+              <Image
+                src={avatarUrl}
+                fill
+                className='rounded-full object-cover'
+                alt='avatar image'
+              />
+            ) : (
+              <Avatar className='w-11 h-11'>
+                <AvatarFallback>
+                  {email[0].toUpperCase() ?? 'PD'}
+                </AvatarFallback>
+              </Avatar>
+            )}
           </div>
-          <span>{row.getValue('name')}</span>
+          <span>{name ?? 'Pending User'}</span>
         </div>
       );
     },
@@ -75,18 +89,34 @@ export const columns: ColumnDef<TableUserDetails>[] = [
 
   {
     accessorKey: 'role',
-    header: 'Permission',
+    header: 'Role',
     cell: ({ row }) => {
       const role: UserRole = row.getValue('role');
+      const getRoleLabel = () => {
+        switch (role) {
+          case UserRole.OWNER:
+            return 'Owner';
+          case UserRole.ADMIN:
+            return 'Admin';
+          case UserRole.READ_WRITE:
+            return 'Read & Write';
+          case UserRole.READ:
+            return 'Read';
+          default:
+            return '';
+        }
+      };
+
       return (
         <Badge
           className={clsx({
-            'bg-primary': role === UserRole.ADMIN,
-            'bg-secondary': role === UserRole.READ_WRITE,
-            'bg-muted': role === UserRole.READ,
+            'bg-primary': role === UserRole.OWNER,
+            'bg-secondary': role === UserRole.ADMIN,
+            'bg-muted': role === UserRole.READ_WRITE,
+            'bg-slate-500': role === UserRole.READ,
           })}
         >
-          {role}
+          {getRoleLabel()}
         </Badge>
       );
     },
@@ -118,18 +148,24 @@ export const columns: ColumnDef<TableUserDetails>[] = [
     cell: ({ row }) => {
       const rowData = row.original;
 
-      return <CellActions rowData={rowData} />;
+      return <CellActions rowData={rowData} user={user} />;
     },
   },
 ];
 
 interface CellActionsProps {
   rowData: TableUserDetails;
+  user: TableUserDetails;
 }
 
-const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
+const CellActions: React.FC<CellActionsProps> = ({ rowData, user }) => {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const { status, id, workspaceId } = rowData;
+
+  const hasRights =
+    user.role === UserRole.ADMIN || user.role === UserRole.OWNER;
+  const canDelete = hasRights && rowData.role !== UserRole.OWNER;
+
   if (!rowData) return;
 
   return (
@@ -155,7 +191,7 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
             <Copy size={15} /> Copy Email
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          {rowData.role !== UserRole.ADMIN && (
+          {canDelete && (
             <AlertDialogTrigger asChild>
               <DropdownMenuItem className='flex gap-2' onClick={() => {}}>
                 <Trash size={15} /> Remove User
@@ -167,27 +203,29 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className='text-left'>
-            Are you absolutely sure?
+            Are you sure?
           </AlertDialogTitle>
           <AlertDialogDescription className='text-left'>
-            This action cannot be undone. This will permanently delete the user
-            and related data.
+            The user would be removed and would no longer have access to the
+            workspace.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className='flex items-center'>
-          <AlertDialogCancel className='mb-2'>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={loading}
             className='bg-destructive hover:bg-destructive'
             onClick={async () => {
               setLoading(true);
-              await deleteUser(rowData.id, rowData.workspaceId);
-              toast('Deleted User', {
-                description:
-                  'The user has been deleted from this agency they no longer have access to the agency',
-              });
+              if (status === InvitationStatus.PENDING) {
+                await revokeInvitation(id); //invitationId;
+              } else {
+                await removeUserFromWorkspace(id, workspaceId); //userId
+              }
+              await refetchWorkspaceDetails(workspaceId);
+
+              toast('User removed from workspace successfully');
               setLoading(false);
-              router.refresh();
             }}
           >
             Delete
@@ -204,14 +242,14 @@ export const formatWorkspaceUsers = (workspace?: DetailedWorkspace) => {
   const formattedUsers =
     users?.map(user => {
       const invitation = invitations?.find(
-        invitation => invitation.userId === user?.userId,
+        invitation => invitation.email === user?.user.email,
       );
 
       return {
         ...user.user,
         workspaceId: user.workspaceId,
         status:
-          user?.role === UserRole.ADMIN
+          user?.role === UserRole.OWNER
             ? InvitationStatus.ACCEPTED
             : (invitation?.status ?? InvitationStatus.REVOKED),
         role: user?.role ?? UserRole.READ,

@@ -8,6 +8,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components';
 import QueryClientWrapper from '@/components/providers/QueryClientWrapper';
 import { Toaster } from '@/components/ui/sonner';
+import ModalProvider from '@/components/providers/ModalProvider';
 
 const font = Inter({ subsets: ['latin'] });
 
@@ -29,8 +30,10 @@ export default function RootLayout({
         <ThemeProvider>
           <QueryClientWrapper>
             <ClerkProvider appearance={{ baseTheme: dark }}>
-              <Toaster />
-              {children}
+              <ModalProvider>
+                <Toaster />
+                {children}
+              </ModalProvider>
             </ClerkProvider>
           </QueryClientWrapper>
         </ThemeProvider>

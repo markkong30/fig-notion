@@ -1,34 +1,62 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Spinner from '@/components/global/Spinner';
-import { useGetWorkspace } from '@/helpers/workspace/query-helpers';
+import { useUpdateWorkspaceUserMetaData } from '@/helpers/workspace/query-helpers';
 import { useUser } from '@clerk/nextjs';
+import { useGetWorkspaces } from '@/helpers/redirect/query-helpers';
 
 type Props = {
   children: ReactNode;
 };
 
 const MainLayout = ({ children }: Props) => {
-  const user = useUser();
-  const workspaceId = user.user?.publicMetadata.currentWorkspaceId as string;
+  const { user } = useUser();
+  const workspaceId = user?.publicMetadata.currentWorkspaceId as string;
+  const userId = user?.id as string;
 
-  const { workspace, isGettingWorkspace } = useGetWorkspace(workspaceId);
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useState(workspaceId);
 
-  if (isGettingWorkspace) {
-    return <Spinner size={50} />;
+  const { workspaces, isGettingWorkspaces } = useGetWorkspaces(userId);
+  const { updateWorkspaceUserMetaData, isUpdatingWorkspaceUserMetaData } =
+    useUpdateWorkspaceUserMetaData();
+  const workspace =
+    workspaces?.find(w => w.id === currentWorkspaceId) ?? workspaces?.[0];
+
+  useEffect(() => {
+    if (workspace?.id && workspace.id !== workspaceId) {
+      updateWorkspaceUserMetaData({ userId, workspaceId: workspace.id });
+      setCurrentWorkspaceId(workspace.id);
+    } else {
+      setCurrentWorkspaceId(workspaceId);
+    }
+  }, [workspaceId, workspace?.id]);
+
+  const onWorkspaceChange = async (workspaceId: string) => {
+    await updateWorkspaceUserMetaData({ userId, workspaceId });
+
+    setCurrentWorkspaceId(workspaceId);
+  };
+
+  if (isGettingWorkspaces || isUpdatingWorkspaceUserMetaData || !workspace) {
+    return <Spinner size={50} fullScreen />;
   }
 
-  if (!workspace) {
+  if (!workspace || !userId) {
     return <div>Workspace not found</div>;
   }
 
   return (
     <div className='w-screen h-screen relative'>
-      <Sidebar workspace={workspace}>
-        <div className='hidden md:block absolute bottom-0 right-[-20%] w-72 h-72 xl:w-48 xl:h-48 bg-indigo-600 rounded-full blur-[10rem]'></div>
-        <div className='hidden md:block absolute top-0 right-[-20%] w-72 h-72 xl:w-48 xl:h-48 bg-primary rounded-full blur-[10rem]'></div>
+      <Sidebar
+        userId={userId}
+        workspaces={workspaces}
+        workspace={workspace}
+        onWorkspaceChange={onWorkspaceChange}
+      >
+        <div className='hidden md:block absolute bottom-0 right-[-20%] w-56 h-56 2xl:w-48 2xl:h-48 bg-indigo-600 rounded-full blur-[10rem]'></div>
+        <div className='hidden md:block absolute top-0 right-[-20%] w-56 h-56 2xl:w-48 2xl:h-48 bg-primary rounded-full blur-[10rem]'></div>
         {children}
       </Sidebar>
     </div>

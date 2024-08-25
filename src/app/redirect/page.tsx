@@ -12,6 +12,7 @@ const Redirect = () => {
   useEffect(() => {
     const initLoginRedirect = async () => {
       await initUser({ plan: Plan.FREE });
+      await user?.reload();
     };
 
     if (user) {
@@ -19,7 +20,11 @@ const Redirect = () => {
     }
   }, [user?.id]);
 
-  return <Spinner size={50} />;
+  return (
+    <div className='w-screen h-screen'>
+      <Spinner size={50} fullScreen />
+    </div>
+  );
 };
 
 export default Redirect;

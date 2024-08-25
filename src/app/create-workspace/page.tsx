@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import CoverPicker from '@/components/create-workspace/CoverPicker';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { defaultWorkspaceLogoUrl, workspaceCovers } from '@/constants/covers';
-import { initUser } from '@/lib/queries';
-import { useUser } from '@clerk/nextjs';
-import { Plan } from '@prisma/client';
 import { ImagePlus } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -20,31 +17,25 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useCreateWorkspace } from '@/helpers/workspace/query-helpers';
+import { useUser } from '@clerk/nextjs';
 
 const CreateWorkspace = () => {
   const [coverImage, setCoverImage] = useState(workspaceCovers[0].imageUrl);
   const [workspaceName, setWorkspaceName] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const { user } = useUser();
+  const user = useUser();
   const router = useRouter();
 
   const { createWorkspace, isCreatingWorkspace } = useCreateWorkspace({
     onSuccess: async workspace => {
       if (workspace) {
-        router.push('/dashboard');
+        // make sure clerk metaData is upated
+        await user.user?.reload();
+
+        router.push(`/dashboard?id=${workspace.id}`);
       }
     },
   });
-
-  useEffect(() => {
-    const createUser = async () => {
-      await initUser({ plan: Plan.FREE });
-    };
-
-    if (user) {
-      createUser();
-    }
-  }, [user?.id]);
 
   const onCreateWorkspace = () => {
     if (!workspaceName) return;

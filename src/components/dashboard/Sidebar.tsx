@@ -6,24 +6,44 @@ import {
   SidebarBody,
   SidebarLink,
 } from '../ui/sidebar';
-import { motion } from 'framer-motion';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 import { cn } from '@/lib/utils';
 import { useClerk, UserButton } from '@clerk/nextjs';
 import { getSidebarItems, iconProps } from '@/constants/sidebar';
-import { LogOutIcon } from 'lucide-react';
-import { Workspace } from '@prisma/client';
-import Image from 'next/image';
+import { ChevronDownIcon, LogOutIcon, PlusIcon } from 'lucide-react';
+import { WorkspaceWithUser } from '@/helpers/types';
+import WorkspaceItem from '../workspace/WorkspaceItem';
+import { useRouter } from 'next/navigation';
+import { DropdownMenuLabel } from '@radix-ui/react-dropdown-menu';
 
 type Props = {
-  workspace: Workspace;
+  userId: string;
+  workspaces?: WorkspaceWithUser[];
+  workspace: WorkspaceWithUser;
+  onWorkspaceChange: (workspaceId: string) => void;
   children: ReactNode;
 };
 
-const Sidebar: FC<Props> = ({ workspace, children }) => {
+const Sidebar: FC<Props> = ({
+  userId,
+  workspaces,
+  workspace,
+  onWorkspaceChange,
+  children,
+}) => {
   const { user, openUserProfile, signOut } = useClerk();
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const sidebarItems = getSidebarItems();
+  const otherWorkspaces = workspaces?.filter(w => w.id !== workspace.id);
 
   const onSignOut = async () => {
     await signOut({
@@ -34,29 +54,45 @@ const Sidebar: FC<Props> = ({ workspace, children }) => {
   return (
     <div
       className={cn(
-        'rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-[#0e0814] flex-1 border border-neutral-200 dark:border-neutral-700 overflow-hidden',
+        'rounded-md flex flex-col md:flex-row bg-background flex-1 border border-neutral-200 dark:border-neutral-700 overflow-hidden',
         'w-full h-full',
       )}
     >
-      <SidebarWrapper open={open} setOpen={setOpen}>
+      {/* TODO: Fix mobile open state */}
+      <SidebarWrapper open={true} setOpen={setOpen}>
         <SidebarBody className='justify-between gap-10'>
           <div className='flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
-            <div className='flex items-center gap-4'>
-              <Image
-                src={workspace.logoUrl + '-/preview/-/border_radius/50p/'}
-                width={28}
-                height={28}
-                alt='workspace logo'
-                priority
-              />
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className='font-medium text-black dark:text-white whitespace-pre'
-              >
-                {workspace.name}
-              </motion.span>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <WorkspaceItem
+                  logoUrl={workspace.logoUrl}
+                  name={workspace.name}
+                >
+                  <ChevronDownIcon className='-ml-2' size={20} />
+                </WorkspaceItem>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='w-[250px] bg-primary-dark'>
+                {otherWorkspaces?.map(workspace => (
+                  <DropdownMenuItem
+                    key={workspace.id}
+                    onClick={() => onWorkspaceChange(workspace.id)}
+                  >
+                    <WorkspaceItem
+                      logoUrl={workspace.logoUrl}
+                      name={workspace.name}
+                    />
+                  </DropdownMenuItem>
+                ))}
+                {!!otherWorkspaces?.length && <DropdownMenuSeparator />}
+                <DropdownMenuLabel className='p-1'>Actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => router.push('/create-workspace')}
+                >
+                  <PlusIcon size={18} className='mr-2' />
+                  Create workspace
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <div className='mt-8 flex flex-col gap-16'>
               {sidebarItems.map(item => (
@@ -64,7 +100,7 @@ const Sidebar: FC<Props> = ({ workspace, children }) => {
                   <div
                     className={cn(
                       'text-foreground font-semibold text-xs mb-2 whitespace-pre',
-                      !open && 'opacity-0',
+                      // !open && 'opacity-0',
                     )}
                   >
                     {item.section}

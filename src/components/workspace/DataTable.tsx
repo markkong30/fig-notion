@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -37,13 +37,20 @@ export default function DataTable<TData, TValue>({
   actionButtonText,
   modalChildren,
 }: DataTableProps<TData, TValue>) {
-  const { setOpen } = useModal();
+  const { setOpen, updateModalData, setModalMeta } = useModal();
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
+
+  useEffect(() => {
+    if (modalChildren) {
+      updateModalData(modalChildren);
+    }
+  }, [modalChildren]);
+
   return (
     <div className='flex flex-col gap-8 w-full'>
       <div className='flex items-center justify-between'>
@@ -64,14 +71,12 @@ export default function DataTable<TData, TValue>({
           className='flex gap-2'
           onClick={() => {
             if (modalChildren) {
-              setOpen(
-                <CustomModal
-                  title='Add a team member'
-                  subheading='Send an invitation'
-                >
-                  {modalChildren}
-                </CustomModal>,
-              );
+              setModalMeta({
+                title: 'Manage your workspace',
+                subheading:
+                  'You can send an invitation to your team members and mangage their role.',
+              });
+              setOpen(modalChildren);
             }
           }}
         >

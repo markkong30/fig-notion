@@ -40,6 +40,7 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   isLoading?: boolean;
+  noPadding?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -51,17 +52,20 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       asChild = false,
       disabled,
       isLoading,
+      noPadding,
       children,
       ...props
     },
     ref,
   ) => {
     const Comp = asChild ? Slot : 'button';
+
     return (
       <Comp
         className={cn(
           buttonVariants({ variant, size, className }),
           isLoading && 'opacity-50',
+          noPadding && 'p-0',
         )}
         ref={ref}
         {...props}

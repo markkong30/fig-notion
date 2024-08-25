@@ -11,7 +11,10 @@ import {
 } from '@prisma/client';
 import { createWorkspaceValidation } from './validation';
 import { WorkspaceWithUser } from '@/helpers/types';
-import { UpdateWorkspaceUsersParams } from './queries.type';
+import {
+  SendUserInvitationParams,
+  UpdateWorkspaceUsersParams,
+} from './queries.type';
 import { redirect } from 'next/navigation';
 
 export const initUser = async (newUser: Partial<User>) => {
@@ -35,11 +38,11 @@ export const initUser = async (newUser: Partial<User>) => {
     },
   });
 
-  await clerkClient.users.updateUserMetadata(user.id, {
-    publicMetadata: {
-      plan: newUser.plan ?? Plan.FREE,
-    },
-  });
+  // await clerkClient.users.updateUserMetadata(user.id, {
+  //   publicMetadata: {
+  //     plan: newUser.plan ?? Plan.FREE,
+  //   },
+  // });
 
   const pendingInvitation = await checkUserInvitation(email);
 
@@ -51,15 +54,24 @@ export const initUser = async (newUser: Partial<User>) => {
       role: pendingInvitation.role,
     });
     await acceptInvitation(pendingInvitation.id);
+    await updateCurrentWorkspaceMetaData(
+      user.id,
+      pendingInvitation.workspaceId,
+    );
 
-    return redirect(`/dashboard/${pendingInvitation.workspaceId}`);
+    return redirect('/dashboard');
   }
 
   // if no pending invitation, check if existing workspace exists
   const workspaces = user.publicMetadata?.workspaceIds as string[];
+  const currentWorkspaceId = user.publicMetadata?.currentWorkspaceId as string;
 
   if (workspaces?.length) {
-    return redirect(`/dashboard/${workspaces[0]}`);
+    if (!currentWorkspaceId) {
+      await updateCurrentWorkspaceMetaData(user.id, workspaces[0]);
+    }
+
+    return redirect('/dashboard');
   } else {
     return redirect('/create-workspace');
   }
@@ -79,33 +91,53 @@ export const createWorkSpace = async (workspace: Partial<Workspace>) => {
           user: {
             connect: { id: user.id },
           },
-          role: UserRole.ADMIN, // the creator must be an admin
+          role: UserRole.OWNER, // the creator must be an owner
         },
       },
     },
   });
 
-  const currentWorkspaceIds =
-    (user.publicMetadata?.workspaceIds as string[]) ?? [];
-
   await clerkClient.users.updateUserMetadata(user.id, {
     publicMetadata: {
-      workspaceIds: [...currentWorkspaceIds, workspaceData.id],
+      currentWorkspaceId: workspaceData.id,
     },
   });
 
   return workspaceData;
 };
 
-export const getWorkspaces = async () => {
+export const getWorkspace = async (workspaceId: string, isDetail?: boolean) => {
   const user = await currentUser();
-  if (!user) return [];
+  if (!user) return null;
 
+  const userWorkspace = await db.workspace.findUnique({
+    where: {
+      id: workspaceId,
+      users: {
+        some: {
+          userId: user.id,
+        },
+      },
+    },
+    include: {
+      users: {
+        include: {
+          user: isDetail,
+        },
+      },
+      invitations: isDetail,
+    },
+  });
+
+  return userWorkspace;
+};
+
+export const getWorkspaces = async (userId: string) => {
   const userWorkspaces = (await db.workspace.findMany({
     where: {
       users: {
         some: {
-          userId: user?.id,
+          userId,
         },
       },
     },
@@ -116,18 +148,18 @@ export const getWorkspaces = async () => {
 
   const mappedWorkspaces =
     userWorkspaces.sort((a, b) => {
-      const currentUserA = a.users.find(u => u.userId === user.id);
-      const currentUserB = b.users.find(u => u.userId === user.id);
+      const currentUserA = a.users.find(u => u.userId === userId);
+      const currentUserB = b.users.find(u => u.userId === userId);
 
       if (
-        currentUserA?.role === UserRole.ADMIN &&
-        currentUserB?.role !== UserRole.ADMIN
+        currentUserA?.role === UserRole.OWNER &&
+        currentUserB?.role !== UserRole.OWNER
       ) {
         return -1;
       }
       if (
-        currentUserA?.role !== UserRole.ADMIN &&
-        currentUserB?.role === UserRole.ADMIN
+        currentUserA?.role !== UserRole.OWNER &&
+        currentUserB?.role === UserRole.OWNER
       ) {
         return 1;
       }
@@ -162,34 +194,22 @@ export const createUserWithWorkspace = async (
     },
   });
 
-  const currentWorkspaceIds =
-    (user.publicMetadata?.workspaceIds as string[]) ?? [];
-
-  await clerkClient.users.updateUserMetadata(user.id, {
-    publicMetadata: {
-      workspaceIds: [...currentWorkspaceIds, workspaceId],
-    },
-  });
-
   return createdUser;
 };
 
-export const sendUserInvitation = async (
-  workspaceId: string,
-  role: UserRole,
-) => {
-  const user = await currentUser();
-  if (!user) return;
+export const sendUserInvitation = async ({
+  workspaceId,
+  role,
+  email,
+}: SendUserInvitationParams) => {
+  // return await new Promise(resolve => setTimeout(resolve, 5000));
 
-  const currentWorkspaceIds =
-    (user.publicMetadata?.workspaceIds as string[]) ?? [];
-
-  await clerkClient.invitations.createInvitation({
-    emailAddress: user.emailAddresses[0].emailAddress,
+  const user = await clerkClient.invitations.createInvitation({
+    emailAddress: email,
     redirectUrl: process.env.NEXT_PUBLIC_URL_SIGN_UP,
     ignoreExisting: true,
     publicMetadata: {
-      workspaceIds: [...currentWorkspaceIds, workspaceId],
+      currentWorkspaceId: workspaceId,
     },
   });
 
@@ -198,8 +218,8 @@ export const sendUserInvitation = async (
       userId: user.id,
       workspaceId,
       role,
+      email,
       status: InvitationStatus.PENDING,
-      email: user.emailAddresses[0].emailAddress,
     },
   });
 
@@ -252,4 +272,101 @@ export const acceptInvitation = async (invitationId: string) => {
   });
 
   return invitation;
+};
+
+export const revokeInvitation = async (invitationId: string) => {
+  const invitation = await db.invitation.update({
+    where: {
+      id: invitationId,
+    },
+    data: {
+      status: InvitationStatus.REVOKED,
+    },
+  });
+
+  return invitation;
+};
+
+export const updateCurrentWorkspaceMetaData = async (
+  userId: string,
+  workspaceId: string,
+) => {
+  await clerkClient.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      currentWorkspaceId: workspaceId,
+    },
+  });
+};
+
+export const updateWorkspaceUserRole = async (
+  userId: string,
+  workspaceId: string,
+  newRole: UserRole,
+) => {
+  const updatedWorkspace = await db.workspace.update({
+    where: {
+      id: workspaceId,
+    },
+    data: {
+      users: {
+        update: {
+          where: {
+            userId_workspaceId: {
+              userId,
+              workspaceId,
+            },
+          },
+          data: {
+            role: newRole,
+          },
+        },
+      },
+    },
+  });
+
+  return updatedWorkspace;
+};
+
+export const removeUserFromWorkspace = async (
+  userId: string,
+  workspaceId: string,
+) => {
+  const user = await clerkClient.users.getUser(userId);
+
+  const currentWorkspaceId = user.publicMetadata?.currentWorkspaceId as string;
+
+  await clerkClient.users.updateUserMetadata(userId, {
+    privateMetadata: {
+      currentWorkspaceId:
+        currentWorkspaceId === workspaceId ? '' : currentWorkspaceId,
+    },
+  });
+
+  const updatedWorkspace = await db.workspace.update({
+    where: {
+      id: workspaceId,
+    },
+    data: {
+      users: {
+        delete: {
+          userId_workspaceId: {
+            userId,
+            workspaceId,
+          },
+        },
+      },
+    },
+  });
+
+  return updatedWorkspace;
+};
+
+export const getUser = async (id: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return user;
 };

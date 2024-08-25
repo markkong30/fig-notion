@@ -5,29 +5,29 @@ export const iconProps = {
   className: 'text-foreground h-5 w-5 flex-shrink-0',
 };
 
-export const sidebarItems = [
+export const getSidebarItems = () => [
   {
     id: 'application',
     section: 'Application',
     links: [
       {
         label: 'Dashboard',
-        href: '#',
+        href: '/dashboard',
         icon: <IconBrandTabler {...iconProps} />,
       },
       {
         label: 'Web Builder',
-        href: '#',
+        href: '/builder',
         icon: <AppWindow {...iconProps} />,
       },
       {
         label: 'Documents',
-        href: '#',
+        href: '/documents',
         icon: <FileText {...iconProps} />,
       },
       {
         label: 'Assets Gallery',
-        href: '#',
+        href: '/assets',
         icon: <Images {...iconProps} />,
       },
     ],
@@ -38,12 +38,12 @@ export const sidebarItems = [
     links: [
       {
         label: 'Workspace',
-        href: '#',
+        href: '/workspace',
         icon: <Users {...iconProps} />,
       },
       {
         label: 'Billing',
-        href: '#',
+        href: '/billing',
         icon: <IconCreditCard {...iconProps} />,
       },
     ],

@@ -82,7 +82,7 @@ const HomePage = () => {
             </div>
 
             <div className='relative flex items-center py-10 md:py-20 w-full'>
-              <div className='absolute top-1/2 left-1/2 -z-10 gradient w-3/4 -translate-x-1/2 h-3/4 -translate-y-1/2 inset-0 blur-[10rem]'></div>
+              <div className='absolute top-1/2 left-1/2 -z-10 gradient w-3/4 -translate-x-1/2 h-3/4 -translate-y-1/2 inset-0 blur-[10rem] 2xl:blur-[7rem]'></div>
               <div className='-m-2 rounded-xl p-2 ring-1 ring-inset ring-foreground/20 lg:-m-4 lg:rounded-2xl bg-opacity-50 backdrop-blur-3xl'>
                 <Image
                   src='/assets/dashboard.svg'
@@ -137,8 +137,8 @@ const HomePage = () => {
 
       {/* features */}
       <Wrapper className='flex flex-col items-center justify-center py-12 relative'>
-        <div className='hidden md:block absolute top-0 -right-1/3 w-72 h-72 bg-primary rounded-full blur-[10rem] -z-10'></div>
-        <div className='hidden md:block absolute bottom-0 -left-1/3 w-72 h-72 bg-indigo-600 rounded-full blur-[10rem] -z-10'></div>
+        <div className='hidden md:block absolute top-0 -right-1/3 w-72 h-72 2xl:w-48 2xl:h-48 bg-primary rounded-full blur-[10rem] -z-10'></div>
+        <div className='hidden md:block absolute bottom-0 -left-1/3 w-72 h-72 2xl:w-48 2xl:h-48 bg-indigo-600 rounded-full blur-[10rem] -z-10'></div>
         <Container>
           <div className='max-w-md mx-auto text-start md:text-center'>
             <SectionBadge title='Features' />
@@ -180,7 +180,7 @@ const HomePage = () => {
 
       {/* pricing */}
       <Wrapper className='flex flex-col items-center justify-center py-12 relative'>
-        <div className='hidden md:block absolute top-0 -right-1/3 w-72 h-72 bg-blue-500 rounded-full blur-[10rem] -z-10'></div>
+        <div className='hidden md:block absolute top-0 -right-1/3 w-72 h-72 2xl:w-48 2xl:h-48 bg-blue-500 rounded-full blur-[10rem] -z-10'></div>
         <Container>
           <div className='max-w-md mx-auto text-start md:text-center'>
             <SectionBadge title='Pricing' />
@@ -243,7 +243,7 @@ const HomePage = () => {
 
       {/* testimonials */}
       <Wrapper className='flex flex-col items-center justify-center py-12 relative'>
-        <div className='hidden md:block absolute -top-1/4 -left-1/3 w-72 h-72 bg-indigo-500 rounded-full blur-[10rem] -z-10'></div>
+        <div className='hidden md:block absolute -top-1/4 -left-1/3 w-72 h-72 2xl:w-48 2xl:h-48 bg-indigo-500 rounded-full blur-[10rem] -z-10'></div>
         <Container>
           <div className='max-w-md mx-auto text-start md:text-center'>
             <SectionBadge title='Our Customers' />

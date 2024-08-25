@@ -11,7 +11,7 @@
     /* CSS: .bg-gradient { background: var(--gradient) } */
     --gradient: #614385;
 
-    --background: 284 21.45% 3.12%;
+    --background: 270 43% 5%;
     --foreground: 284 3.3000000000000003% 96.95%;
 
     --muted: 284 16.5% 11.700000000000001%;
@@ -28,6 +28,7 @@
 
     --primary: 284 33% 39%;
     --primary-foreground: 284 3.3000000000000003% 96.95%;
+    --primary-dark: #11021d;
 
     --secondary: 284 16.5% 11.700000000000001%;
     --secondary-foreground: 284 3.3000000000000003% 96.95%;
@@ -40,6 +41,24 @@
 
     --ring: 284 33% 39%;
   }
+}
+
+@layer utilities {
+  .shad-select {
+    @apply w-fit border-none bg-transparent text-blue-100 !important;
+  }
+
+  .shad-select svg {
+    @apply ml-1 mt-1;
+  }
+
+  .shad-select-item {
+    @apply cursor-pointer  text-blue-100   focus:text-blue-100 !important;
+  }
+
+  /* .share-input {
+    @apply h-11 flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 !important;
+  } */
 }
 
 ::selection {
@@ -62,6 +81,11 @@
 
 ::-webkit-scrollbar-track {
   background-color: hsl(var(--background));
+}
+
+.background-gradient {
+  background: linear-gradient(135deg, #2e003e, #1a001f);
+  color: #ffffff;
 }
 
 .dotPattern {

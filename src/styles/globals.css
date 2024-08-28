@@ -45,7 +45,7 @@
 
 @layer utilities {
   .shad-select {
-    @apply w-fit border-none bg-transparent text-blue-100 !important;
+    @apply w-fit border-none bg-transparent text-purple-100 !important;
   }
 
   .shad-select svg {
@@ -53,7 +53,7 @@
   }
 
   .shad-select-item {
-    @apply cursor-pointer  text-blue-100   focus:text-blue-100 !important;
+    @apply cursor-pointer  text-purple-100   focus:text-purple-100 !important;
   }
 
   /* .share-input {

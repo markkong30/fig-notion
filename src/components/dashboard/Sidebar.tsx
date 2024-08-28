@@ -41,6 +41,7 @@ const Sidebar: FC<Props> = ({
   const { user, openUserProfile, signOut } = useClerk();
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  console.log(workspace);
 
   const sidebarItems = getSidebarItems();
   const otherWorkspaces = workspaces?.filter(w => w.id !== workspace.id);

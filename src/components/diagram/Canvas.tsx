@@ -24,7 +24,7 @@ const Canvas: FC<Props> = ({
           elements: initialCanvasData.elements,
           appState: omit(initialCanvasData.appState, 'collaborators'),
         }}
-        onChange={(excalidrawElements, appState, files) => {
+        onChange={(excalidrawElements, appState) => {
           setCanvasElements(excalidrawElements);
           setCanvasState(appState);
         }}

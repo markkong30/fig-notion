@@ -84,7 +84,6 @@ const Document = ({ params }: Props) => {
           setCanvasElements={setCanvasElements}
           setCanvasState={setCanvasState}
         />
-        {/* <Canvas initialCanvasData={initialCanvasData} /> */}
       </div>
     </main>
   );

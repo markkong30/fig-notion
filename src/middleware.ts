@@ -11,7 +11,7 @@ const isPrivateRoute = createRouteMatcher([
 export default clerkMiddleware((auth, req) => {
   const { userId } = auth();
 
-  if (isPrivateRoute(req)) {
+  if (!isPublicRoute(req)) {
     if (!userId) {
       return NextResponse.rewrite(new URL('/', req.url));
     }

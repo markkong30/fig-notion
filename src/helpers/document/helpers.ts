@@ -5,3 +5,9 @@ export const refetchDocuments = async (workspaceId: string) => {
     queryKey: ['documents', workspaceId],
   });
 };
+
+export const refetchDocument = async (documentId: string) => {
+  await queryClient.refetchQueries({
+    queryKey: ['document', documentId],
+  });
+};

@@ -1,4 +1,5 @@
 import { Container, Icons } from '@/components';
+import LogoBtn from '@/components/global/LogoBtn';
 import { buttonVariants } from '@/components/ui/button';
 import { UserButton } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';
@@ -13,15 +14,7 @@ const Navbar = async () => {
       <Container reverse>
         <div className='flex items-center justify-between h-full mx-auto md:max-w-screen-xl'>
           <div className='flex items-start'>
-            <Link href='/' className='flex items-center gap-2'>
-              <Image
-                src='/assets/logo.png'
-                alt='FigNotion'
-                width={50}
-                height={50}
-              />
-              <Icons.logo className='w-auto h-6' />
-            </Link>
+            <LogoBtn />
           </div>
           <nav className='hidden md:block absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2'>
             <ul className='flex items-center justify-center gap-8'>

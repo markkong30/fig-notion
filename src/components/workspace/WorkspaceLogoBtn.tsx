@@ -1,16 +1,24 @@
 import Image from 'next/image';
 import { FC, ReactNode } from 'react';
 import Text from '../global/typography/Text';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   logoUrl: string;
   name: string;
+  isButton?: boolean;
   children?: ReactNode;
 };
 
-const WorkspaceItem: FC<Props> = ({ logoUrl, name, children }) => {
+const WorkspaceLogoBtn: FC<Props> = ({ logoUrl, name, isButton, children }) => {
+  const router = useRouter();
+  const Component = isButton ? 'button' : 'div';
+
   return (
-    <div className='flex items-center gap-4'>
+    <Component
+      className='flex items-center gap-4'
+      onClick={isButton ? () => router.push('/dashboard') : undefined}
+    >
       <Image
         src={logoUrl + '-/preview/-/border_radius/50p/'}
         width={40}
@@ -22,8 +30,8 @@ const WorkspaceItem: FC<Props> = ({ logoUrl, name, children }) => {
         {name}
       </Text>
       {children}
-    </div>
+    </Component>
   );
 };
 
-export default WorkspaceItem;
+export default WorkspaceLogoBtn;

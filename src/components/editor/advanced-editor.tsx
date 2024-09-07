@@ -1,5 +1,6 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+
+import React, { useState } from 'react';
 import {
   EditorRoot,
   EditorCommand,
@@ -21,6 +22,7 @@ import { slashCommand, suggestionItems } from './slash-command';
 import { handleImageDrop, handleImagePaste } from 'novel/plugins';
 import { uploadFn } from './image-upload';
 import { Separator } from '../ui/separator';
+
 const extensions = [...defaultExtensions, slashCommand];
 
 interface EditorProp {
@@ -37,6 +39,7 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
     if (item.title === 'Add') {
       return {
         ...item,
+        // TBD Add image feature
         //@ts-expect-error - ignore
         command: async ({ editor, range }) => {
           setIsLoading(true);
@@ -76,7 +79,7 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
     <>
       <EditorRoot>
         <EditorContent
-          className='border p-4 rounded-xl'
+          className='border px-8 py-4 rounded-xl overflow-scroll'
           {...(initialValue && { initialContent: initialValue })}
           extensions={extensions}
           editorProps={{
@@ -91,6 +94,7 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
               class: `prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full`,
             },
           }}
+          onCreate={({ editor }) => onChange(editor.getJSON())}
           onUpdate={({ editor }) => {
             onChange(editor.getJSON());
           }}
@@ -140,9 +144,6 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
           </EditorBubble>
         </EditorContent>
       </EditorRoot>
-      <div className='fixed top-1/2 left-1/2 text-3xl'>
-        {isLoading ? 'Loading' : 'Test'}
-      </div>
     </>
   );
 };

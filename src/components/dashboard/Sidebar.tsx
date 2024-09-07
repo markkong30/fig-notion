@@ -19,9 +19,10 @@ import { useClerk, UserButton } from '@clerk/nextjs';
 import { getSidebarItems, iconProps } from '@/constants/sidebar';
 import { ChevronDownIcon, LogOutIcon, PlusIcon } from 'lucide-react';
 import { WorkspaceWithUser } from '@/helpers/types';
-import WorkspaceItem from '../workspace/WorkspaceItem';
+import WorkspaceLogoBtn from '../workspace/WorkspaceLogoBtn';
 import { useRouter } from 'next/navigation';
 import { DropdownMenuLabel } from '@radix-ui/react-dropdown-menu';
+import { useMedia } from '../providers/MediaProvider';
 
 type Props = {
   userId: string;
@@ -39,6 +40,7 @@ const Sidebar: FC<Props> = ({
   children,
 }) => {
   const { user, openUserProfile, signOut } = useClerk();
+  const { isNative } = useMedia();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   console.log(workspace);
@@ -60,17 +62,17 @@ const Sidebar: FC<Props> = ({
       )}
     >
       {/* TODO: Fix mobile open state */}
-      <SidebarWrapper open={true} setOpen={setOpen}>
+      <SidebarWrapper open={isNative ? open : true} setOpen={setOpen}>
         <SidebarBody className='justify-between gap-10'>
           <div className='flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <WorkspaceItem
+                <WorkspaceLogoBtn
                   logoUrl={workspace.logoUrl}
                   name={workspace.name}
                 >
                   <ChevronDownIcon className='-ml-2' size={20} />
-                </WorkspaceItem>
+                </WorkspaceLogoBtn>
               </DropdownMenuTrigger>
               <DropdownMenuContent className='w-[250px] bg-primary-dark'>
                 {otherWorkspaces?.map(workspace => (
@@ -78,7 +80,7 @@ const Sidebar: FC<Props> = ({
                     key={workspace.id}
                     onClick={() => onWorkspaceChange(workspace.id)}
                   >
-                    <WorkspaceItem
+                    <WorkspaceLogoBtn
                       logoUrl={workspace.logoUrl}
                       name={workspace.name}
                     />

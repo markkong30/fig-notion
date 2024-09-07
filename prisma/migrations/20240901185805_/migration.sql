@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Document" ALTER COLUMN "editor" DROP NOT NULL,
+ALTER COLUMN "editor" SET DATA TYPE JSON;

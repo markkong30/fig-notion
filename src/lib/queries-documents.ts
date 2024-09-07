@@ -1,6 +1,8 @@
 'use server';
 
+import { Prisma } from '@prisma/client';
 import { db } from './db';
+import { UpdateDocumentParams } from './queries.type';
 
 export const getDocuments = async (workspaceId: string) => {
   const documents = await db.document.findMany({
@@ -38,11 +40,39 @@ export const getDocument = async (documentId: string) => {
     where: {
       id: documentId,
     },
-    include: {
-      editor: true,
-      diagram: true,
+  });
+
+  return document;
+};
+
+export const updateDocumentTitle = async (
+  documentId: string,
+  title: string,
+) => {
+  const document = await db.document.update({
+    where: {
+      id: documentId,
+    },
+    data: {
+      title,
     },
   });
 
   return document;
+};
+
+export const updateDocument = async ({
+  documentId,
+  editorState,
+  canvasState,
+}: UpdateDocumentParams) => {
+  const updatedDocument = await db.document.update({
+    where: { id: documentId },
+    data: {
+      editor: editorState!,
+      canvas: canvasState as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  return updatedDocument;
 };

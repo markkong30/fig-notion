@@ -40,6 +40,16 @@
     --destructive-foreground: 284 3.3000000000000003% 96.95%;
 
     --ring: 284 33% 39%;
+
+    --novel-highlight-default: #000000;
+    --novel-highlight-purple: #3f2c4b;
+    --novel-highlight-red: #5c1a1a;
+    --novel-highlight-yellow: #5c4b1a;
+    --novel-highlight-blue: #1a3d5c;
+    --novel-highlight-green: #1a5c20;
+    --novel-highlight-orange: #5c3a1a;
+    --novel-highlight-pink: #5c1a3a;
+    --novel-highlight-gray: #3a3a3a;
   }
 }
 
@@ -55,10 +65,6 @@
   .shad-select-item {
     @apply cursor-pointer  text-blue-100   focus:text-blue-100 !important;
   }
-
-  /* .share-input {
-    @apply h-11 flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 !important;
-  } */
 }
 
 ::selection {

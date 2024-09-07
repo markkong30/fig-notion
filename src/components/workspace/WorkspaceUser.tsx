@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Image from 'next/image';
 import { InvitationStatus, UserRole } from '@prisma/client';
 import { TableUserDetails } from '@/helpers/workspace/table-helpers';
@@ -43,12 +42,12 @@ const WorkspaceUser = ({
           <p className='line-clamp-1 text-sm font-semibold leading-4 text-white'>
             {user.name ?? 'Pending User'}
           </p>
-          <p className='text-sm font-light text-blue-100'>{user.email}</p>
+          <p className='text-sm font-light text-purple-100'>{user.email}</p>
         </div>
       </div>
 
       {user.role === UserRole.OWNER ? (
-        <p className='text-sm text-blue-100'>Owner</p>
+        <p className='text-sm text-purple-100'>Owner</p>
       ) : (
         <div className='flex items-center'>
           <RoleSelector

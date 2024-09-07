@@ -1,6 +1,7 @@
 import React from 'react';
 import { SITE_CONFIG } from '@/config';
 import { cn } from '@/lib/utils';
+import '@/styles/prosemirror.css';
 import '@/styles/globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
@@ -9,6 +10,7 @@ import { ThemeProvider } from '@/components';
 import QueryClientWrapper from '@/components/providers/QueryClientWrapper';
 import { Toaster } from '@/components/ui/sonner';
 import ModalProvider from '@/components/providers/ModalProvider';
+import { MediaProvider } from '@/components/providers/MediaProvider';
 
 const font = Inter({ subsets: ['latin'] });
 
@@ -30,10 +32,12 @@ export default function RootLayout({
         <ThemeProvider>
           <QueryClientWrapper>
             <ClerkProvider appearance={{ baseTheme: dark }}>
-              <ModalProvider>
-                <Toaster />
-                {children}
-              </ModalProvider>
+              <MediaProvider>
+                <ModalProvider>
+                  <Toaster />
+                  {children}
+                </ModalProvider>
+              </MediaProvider>
             </ClerkProvider>
           </QueryClientWrapper>
         </ThemeProvider>

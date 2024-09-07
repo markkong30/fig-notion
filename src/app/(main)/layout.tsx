@@ -6,6 +6,7 @@ import Spinner from '@/components/global/Spinner';
 import { useUpdateWorkspaceUserMetaData } from '@/helpers/workspace/query-helpers';
 import { useUser } from '@clerk/nextjs';
 import { useGetWorkspaces } from '@/helpers/redirect/query-helpers';
+import { useParams } from 'next/navigation';
 
 type Props = {
   children: ReactNode;
@@ -13,6 +14,7 @@ type Props = {
 
 const MainLayout = ({ children }: Props) => {
   const { user } = useUser();
+  const params = useParams();
   const workspaceId = user?.publicMetadata.currentWorkspaceId as string;
   const userId = user?.id as string;
 
@@ -45,6 +47,10 @@ const MainLayout = ({ children }: Props) => {
 
   if (!workspace || !userId) {
     return <div>Workspace not found</div>;
+  }
+
+  if (params?.documentId) {
+    return <div className='w-screen h-screen relative'>{children}</div>;
   }
 
   return (

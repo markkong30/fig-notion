@@ -61,7 +61,7 @@ const ManageUsers: FC<Props> = ({ users, workspaceId, hasRights }) => {
 
   return (
     <div className='pt-6'>
-      <Label htmlFor='email' className='text-blue-100 ml-1'>
+      <Label htmlFor='email' className='text-purple-100 ml-1'>
         Email address
       </Label>
       <div className='flex items-center gap-4'>

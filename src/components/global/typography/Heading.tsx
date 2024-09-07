@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { cva, VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
-const headingVariants = cva('', {
+const headingVariants = cva('font-semibold', {
   variants: {
     variant: {
       default: 'text-foreground',
@@ -11,11 +11,11 @@ const headingVariants = cva('', {
       secondary: 'text-secondary',
     },
     size: {
-      default: 'text-2xl lg:text-3xl',
-      sm: 'text-base font-semibold',
+      default: 'text-2xl',
+      sm: 'text-base',
       base: 'text-xl',
-      md: 'text-3xl lg:text-4xl',
-      lg: 'text-4xl lg:text-5xl',
+      md: 'text-3xl',
+      lg: 'text-4xl',
     },
     margin: {
       default: 'mb-0',

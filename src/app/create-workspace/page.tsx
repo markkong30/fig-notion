@@ -32,7 +32,7 @@ const CreateWorkspace = () => {
         // make sure clerk metaData is upated
         await user.user?.reload();
 
-        router.push(`/dashboard?id=${workspace.id}`);
+        router.push('/dashboard');
       }
     },
   });
@@ -130,7 +130,9 @@ const CreateWorkspace = () => {
             >
               Create
             </Button>
-            {/* <Button variant='outline'>Cancel</Button> */}
+            <Button variant='outline' onClick={() => router.back()}>
+              Cancel
+            </Button>
           </div>
         </div>
       </div>

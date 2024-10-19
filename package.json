@@ -22,7 +22,7 @@
     ]
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.2.3",
+    "@clerk/nextjs": "^5.7.5",
     "@clerk/themes": "^2.1.19",
     "@excalidraw/excalidraw": "^0.17.6",
     "@hookform/resolvers": "^3.4.2",
